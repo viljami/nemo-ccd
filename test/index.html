@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Physics test</title>
+  <script type="text/javascript" src="physics.js"></script>
+  <style type="text/css">
+    html, body, canvas {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="physics"></canvas>
+  <script type="text/javascript">
+    const PI2 = Math.PI * 2;
+
+    const rand = (n, m) => Math.floor(Math.random() * (m - n) + n);
+
+    const physics = new Physics();
+
+    for (let i = 0; i < 20; i++) {
+      physics.createCircle(rand(10, 500), rand(10, 500), rand(5, 50));
+    }
+
+    const projectile = physics.createCircle(window.innerWidth / 2, 0, 50);
+
+    const canvas = document.getElementById('physics');
+    const ctx = canvas.getContext('2d');
+
+    ctx.font = '50px arial';
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+
+    const draw = a => {
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, a.radius, 0, PI2);
+      ctx.stroke();
+
+      ctx.rotate(a.angle);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(a.x + a.radius, a.y);
+      ctx.stroke();
+
+      ctx.restore();
+    };
+
+    let time = 0;
+    let highest = 0;
+
+    projectile.ay = 10;
+    const loop = t => {
+      requestAnimationFrame(loop);
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      // ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+      const dt = t - time;
+      if (dt > highest) highest = dt;
+      ctx.strokeText(Math.floor(highest) + ' > ' + Math.floor(dt), 100, 100);
+
+      physics.step(t);
+      physics.objects.forEach(draw);
+      time = t;
+    };
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    window.addEventListener('load', function load(){
+      window.removeEventListener('load', load);
+      time = performance.now();
+      loop(time);
+    });
+  </script>
+</body>
+</html>

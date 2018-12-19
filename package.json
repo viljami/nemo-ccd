@@ -1,0 +1,34 @@
+{
+  "name": "physics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "watch": {
+    "test": "src/**/*.js",
+    "build": "src/**/*.js"
+  },
+  "scripts": {
+    "start": "./node_modules/.bin/http-server ./test",
+    "build": "./node_modules/.bin/browserify --standalone Physics src/index.js > test/physics.js && ./node_modules/.bin/uglifyjs test/physics.js > test/physics.min.js",
+    "watch-build": "npm-watch build",
+    "test": "tape 'src/**/*.test.js' | tap-spec"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "npm-watch": "^0.5.0",
+    "tap-spec": "^5.0.0",
+    "tape": "^4.9.1",
+    "uglify-es": "^3.3.9",
+    "http-server": "^0.11.1"
+  },
+  "keywords": [
+    "physics",
+    "collision"
+  ],
+  "author": "Viljami Peltola",
+  "license": "ISC"
+}
