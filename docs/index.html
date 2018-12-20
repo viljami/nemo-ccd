@@ -20,9 +20,17 @@
 
     const rand = (n, m) => Math.floor(Math.random() * (m - n) + n);
 
+    const w = window.innerWidth / 2;
+    const minW = w - 250 < 0 ? 0 : w - 250;
+    const maxW = w + 250 > window.innerWidth ?
+      window.innerWidth : w + 250;
+    const h = window.innerHeight / 2;
+    const minH = h - 250 < 0 ? 0 : h - 250;
+    const maxH = h + 250 > window.innerHeight ?
+      window.innerHeight : h + 250;
     for (let i = 0; i < 20; i++) {
       const o = physics.createCircle(
-        rand(10, 500), rand(10, 500), rand(5, 50)
+        rand(minW, maxW), rand(minH, maxH), rand(5, 50)
       );
     }
 
