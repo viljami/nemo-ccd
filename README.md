@@ -19,9 +19,9 @@ npm test
 npm run build && npm start
 ```
 
-Default localhost port for test environment is 8080 and url http://localhost:8080
+Default localhost port for test environment is 8080 and url http://localhost:8080 .
 
-## Key features
+## Key features
 
 - **Non-elastic**, objects do not change in collision and no energy is therefore lost, all the kinematic energy bounces circles off each other in the relation of their masses
 - **Momentumless**, circles do not rotate and there is no rotational energy taken into account in collisions
