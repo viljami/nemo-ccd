@@ -59,6 +59,16 @@ const testSensorCollision = (a, b) => {
   return collision.create(a, b, dt);
 };
 
+// Formula
+// a * t^2 + b * t + d = 0
+// Where
+// a = dot product of (o1.velocity - o2.velocity) with it self
+// b = dot product of (o1.velocity - o2.velocity) with (o2.position - o1.position)
+// c = dot product of (o1.position - o2.position) with it self
+// r = combined radiuses of the circles
+// d = c - r
+// Solved for t
+// https://www.wolframalpha.com/input/?i=solve+t:+a+*+t%5E2+%2B+b+*+t+%2B+d
 const getCollisionTime = (o1, o2) => {
   const x = o2.x - o1.x;
   const y = o2.y - o1.y;
