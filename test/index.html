@@ -26,6 +26,7 @@
     }
 
     const projectile = physics.createCircle(window.innerWidth / 2, 0, 50);
+    projectile.mass = 1;
 
     const canvas = document.getElementById('physics');
     const ctx = canvas.getContext('2d');
@@ -54,11 +55,11 @@
     let time = 0;
     let highest = 0;
 
-    projectile.ay = 10;
     const loop = t => {
       requestAnimationFrame(loop);
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       // ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+      projectile.ay = 2;
 
       const dt = t - time;
       if (dt > highest) highest = dt;
