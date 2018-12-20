@@ -3,6 +3,8 @@
 
 Non-Elastic angular MOmentumless Continuous Collision Detection for circles written with JavaScript. No dependencies or external libraries.
 
+The project [web site](https://viljami.github.io/nemo-ccd/) has a [demo](https://viljami.github.io/nemo-ccd/) running.
+
 ## Build, Develop and Test
 
 ```bash
