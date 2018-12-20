@@ -1,7 +1,7 @@
 
 # NEMO CCD
 
-Non-Elastic MOmentumless Continuous Collision Detection for circles written with JavaScript. No dependencies or external libraries.
+Non-Elastic angular MOmentumless Continuous Collision Detection for circles written with JavaScript. No dependencies or external libraries.
 
 ## Build, Develop and Test
 
@@ -24,7 +24,7 @@ Default localhost port for test environment is 8080 and url http://localhost:808
 ## Key features
 
 - **Non-elastic**, objects do not change in collision and no energy is therefore lost, all the kinematic energy bounces circles off each other in the relation of their masses
-- **Momentumless**, circles do not rotate and there is no rotational energy taken into account in collisions
+- **Angular Momentumless**, no rotational inertia, circles do not rotate and there is no rotational energy taken into account in collisions
 - **Continuous Collision Detection**, the exact moment of collision is calculated for all collisions, objects are moved to touch at that point. One time step is 1.0 long and collisions are calculated betweem 0.0 (previous step end) to 1.0 (next step start). If collision happens at time 0.3 the objects are moved there and collision is handled and the evaluation continues until time 1.0. If collision happens afterwards it taken into account on the next step.
 - **Circle to circle collisions**, only circular objects are simulated, no other shapes
 - **Sensors**, they can be collided with, but do not cause collision impact and can be driven through
