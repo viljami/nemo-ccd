@@ -10,9 +10,7 @@
     updates initial parameters
   poolIndex : Integer
     the last argument of the update function must be stored in member variable with same name.
-
 */
-
 function ObjectPool(ClassVar, size, initialParams) {
   this.pool = [];
   this.freeIndexes = [];
@@ -25,18 +23,10 @@ function ObjectPool(ClassVar, size, initialParams) {
   }
 }
 
-// Example
-// Should be optimized for each new ClassVar?
-ObjectPool.prototype.create = function() {
-  if (!this.freeIndexes.length) {
-    throw new Error('No more free space');
-  }
-  // Let the function be optimized when not using arguments directly with spread.
-  const args = new Array(arguments.length);
-  for (let i = 0; args.length; i++) args[i] = arguments[i];
+ObjectPool.prototype.create = function(a, b, t) {
   const poolIndex = this.freeIndexes.pop();
   const next = this.pool[poolIndex];
-  next.update(...args, poolIndex);
+  next.update(a, b, t, poolIndex);
   return next;
 };
 

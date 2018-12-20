@@ -1,42 +1,46 @@
 
-const collision = require('./collision');
+const Circle = require('./circle');
 const circle2circle = require('./circle2circle');
+const collision = require('./collision');
 
 const equal = a => b => a.equal(b);
 const end = a => a.end();
 const move = t => a => a.move(t);
 const remove = a => collision.remove(a);
 const start = a => a.start();
+const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
+
 const onCollision = col => {
   col.a.onCollision(col);
   col.b.onCollision(col);
 };
-const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
-const getEarliestCollisions = (objects, prevResolvedCollisions, t) => {
+
+const getEarliestCollisions = (objects, prevCollisions, t) => {
   let col = null;
-  let firstCollisions = [];
+  let collisions = [];
   for (let i = 0; i < objects.length; i++) {
     for (let j = i + 1; j < objects.length; j++) {
       col = circle2circle.testCollision(objects[i], objects[j], t);
+
       if (col) {
-        if (!firstCollisions.length) {
-            firstCollisions.push(col);
-        } else if (col.t <= firstCollisions[0].t &&
-          !prevResolvedCollisions.some(equal(col))) {
-          if (col.t < firstCollisions[0].t) {
-            firstCollisions.forEach(remove);
-            firstCollisions.length = 1;
-            firstCollisions[0] = col;
-          } else {
-            firstCollisions.push(col);
-          }
-        } else {
+        if (!collisions.length) {
+            collisions.push(col);
+        } else if (col.t > collisions[0].t || prevCollisions.some(equal(col))) {
           remove(col);
+        } else {
+          if (col.t < collisions[0].t) {
+            collisions.forEach(remove);
+            collisions.length = 1;
+            collisions[0] = col;
+          } else {
+            collisions.push(col);
+          }
         }
       }
     }
   }
-  return firstCollisions;
+
+  return collisions;
 };
 
 const resolveCollisions = objects => {
@@ -44,6 +48,7 @@ const resolveCollisions = objects => {
   let t = 0.0;
   while (t < 1.0) {
     const cols = getEarliestCollisions(objects, resolved, t);
+
     if (cols.length) {
       const dt = cols[0].t;
       t += dt;
@@ -56,6 +61,7 @@ const resolveCollisions = objects => {
       t = 1.0;
     }
   }
+
   objects.forEach(end);
   resolved.forEach(remove);
 };
@@ -64,8 +70,8 @@ function Physics () {
   this.objects = [];
 };
 
-Physics.prototype.createCircle = function(x, y, radius) {
-  const o = circle2circle.createCircle(x, y, radius);
+Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
+  const o = new Circle(x, y, radius, isSensor, onCollision);
   this.objects.push(o);
   return o;
 };

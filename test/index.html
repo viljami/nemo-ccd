@@ -16,40 +16,26 @@
   <canvas id="physics"></canvas>
   <script type="text/javascript">
     const PI2 = Math.PI * 2;
+    const physics = new Physics();
 
     const rand = (n, m) => Math.floor(Math.random() * (m - n) + n);
 
-    const physics = new Physics();
-
     for (let i = 0; i < 20; i++) {
-      physics.createCircle(rand(10, 500), rand(10, 500), rand(5, 50));
+      const o = physics.createCircle(
+        rand(10, 500), rand(10, 500), rand(5, 50)
+      );
     }
 
     const projectile = physics.createCircle(window.innerWidth / 2, 0, 50);
-    projectile.mass = 1;
 
     const canvas = document.getElementById('physics');
     const ctx = canvas.getContext('2d');
 
-    ctx.font = '50px arial';
-    ctx.fillStyle = '#fff';
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-
     const draw = a => {
-      ctx.save();
-
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, a.radius, 0, PI2);
-      ctx.stroke();
-
-      ctx.rotate(a.angle);
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
-      ctx.lineTo(a.x + a.radius, a.y);
+      ctx.arc(a.x, a.y, a.radius, 0, PI2);
       ctx.stroke();
-
-      ctx.restore();
     };
 
     let time = 0;
@@ -57,14 +43,15 @@
 
     const loop = t => {
       requestAnimationFrame(loop);
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      // ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-      projectile.ay = 2;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
       const dt = t - time;
       if (dt > highest) highest = dt;
-      ctx.strokeText(Math.floor(highest) + ' > ' + Math.floor(dt), 100, 100);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(Math.floor(dt) + 'ms', 10, 30);
 
+      projectile.ay = 2;
       physics.step(t);
       physics.objects.forEach(draw);
       time = t;
@@ -80,6 +67,11 @@
     window.addEventListener('load', function load(){
       window.removeEventListener('load', load);
       time = performance.now();
+
+      ctx.font = '20px arial';
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+
       loop(time);
     });
   </script>

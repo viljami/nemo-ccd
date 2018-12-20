@@ -1,13 +1,10 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Physics = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 
-const collision = require('./collision');
+const config = require('./config');
 
-const FRICTION = 0.85;
+const FRICTION = config.FRICTION;
 
-const dist2 = (dx, dy) => dx*dx + dy*dy;
-const dist = (dx, dy) => Math.sqrt(dist2(dx, dy));
-
-function Circle (x, y, radius, angle, isSensor, onCollision) {
+function Circle (x, y, radius, isSensor, onCollision) {
   this.x = x || 0;
   this.y = y || 0;
   this.vx = 0;
@@ -16,7 +13,6 @@ function Circle (x, y, radius, angle, isSensor, onCollision) {
   this.ay = 0;
   this.mass = 1;
   this.radius = radius || 10;
-  this.angle = angle || 0;
   this.isSensor = isSensor || false;
   if (onCollision) this.onCollision = onCollision;
 }
@@ -46,74 +42,110 @@ Circle.prototype.end = function () {
   this.vy = Math.trunc(this.vy);
 };
 
-function Circle2Circle () {
+module.exports = Circle;
 
-};
+},{"./config":4}],2:[function(require,module,exports){
 
-Circle2Circle.prototype.createCircle = function(x, y, radius, angle, onCollision) {
-  return new Circle(x, y, radius, angle, onCollision);
-};
+const collision = require('./collision');
+const config = require('./config');
 
-const getPosition1D = (p, v, a, t) => 0.5*a*t*t + v*t + p;
-const getCollisionTime = (o1, o2) => {
-  const x = o2.x - o1.x;
-  const y = o2.y - o1.y;
-  const vx = o2.vx - o1.vx;
-  const vy = o2.vy - o1.vy;
-  const a = vx*vx + vy*vy;
-  if (a === 0) return 2.0; // going the same way, return somewhere in future
-  const b = vx*x + vy*y;
-  const c = x*x + y*y;
-  const r = o2.radius + o1.radius;
-  const inside = b*b - 4*a*(c - r);
-  if (inside < 0) return 2.0; // imaginary number -> no collision
-  const square = Math.sqrt(inside);
-  const fractionA2 = 1 / 2*a;
-  const t1 = -((square + b) * fractionA2);
-  const t2 = ((square - b) * fractionA2);
-  if (t1 < 0 || t2 < 0) return t1 < t2 ? t2 : t1;
-  return t1 < t2 ? t1 : t2;
-};
+const IMPACT_MIN = config.IMPACT_MIN;
 
-const testSensorCollision = (a, b) => {
-  if (a.isSensor && b.isSensor) return;
-  const sensor = a.isSensor ? a : b;
-  const other = a.isSensor ? b : a;
-  const dt = getCollisionTime(sensor, other);
-  if (dt < 0.0 || dt > 1.0) return;
-  return collision.create(a, b, dt);
-};
+const dist2 = (dx, dy) => dx*dx + dy*dy;
 
-Circle2Circle.prototype.testCollision = function(a, b, t) {
+const testCollision = (a, b, t) => {
   if (a.isSensor || b.isSensor) {
     return testSensorCollision(a, b);
   }
 
-  const r = a.radius + b.radius;
-  const r2 = r * r;
-
   const x = (b.x - a.x) || 5;
   const y = (b.y - a.y || 5);
   const d2 = dist2(x, y);
+  const r = a.radius + b.radius;
+  const r2 = r * r;
+
   if (d2 < r2) {
     // Move objects apart
     const d = Math.sqrt(d2);
     const nx = x / d;
     const ny = y / d;
     const rHalf = Math.ceil((r - d) / 2);
+
     a.x -= nx * rHalf;
     a.y -= ny * rHalf;
     b.x += nx * rHalf;
     b.y += ny * rHalf;
+
     return collision.create(a, b, 0.0); // immidiate collision
   }
 
   const dt = getCollisionTime(a, b);
-  if (dt < 0 || t + dt > 1.0) return;
+  if (dt < 0 || t + dt > 1.0) {
+    // Collision happens this turn only if 0 <= t <= 1
+    return;
+  }
+
   return collision.create(a, b, dt)
 };
 
-Circle2Circle.prototype.handleCollision = function(col) {
+const testSensorCollision = (a, b) => {
+  if (a.isSensor && b.isSensor) {
+    // Two sensor will never collide.
+    return;
+  }
+
+  const sensor = a.isSensor ? a : b;
+  const other = a.isSensor ? b : a;
+  const dt = getCollisionTime(sensor, other);
+
+  if (dt < 0.0 || dt > 1.0) {
+    // Collision happens this turn only if 0 <= t <= 1
+    return;
+  }
+
+  return collision.create(a, b, dt);
+};
+
+const getCollisionTime = (o1, o2) => {
+  const x = o2.x - o1.x;
+  const y = o2.y - o1.y;
+  const vx = o2.vx - o1.vx;
+  const vy = o2.vy - o1.vy;
+  const a = vx*vx + vy*vy;
+
+  if (a === 0) {
+    // Going the same way. No collision.
+    // Return time in future to skip collision this turn.
+    return 2.0;
+  }
+
+  const b = vx*x + vy*y;
+  const c = x*x + y*y;
+  const r = o2.radius + o1.radius;
+  const inside = b*b - 4*a*(c - r);
+
+  if (inside < 0) {
+    // results to imaginary number when squared
+    // -> no collision this turn
+    return 2.0;
+  }
+
+  const square = Math.sqrt(inside);
+  const fractionA2 = 1 / 2*a;
+  const t1 = -((square + b) * fractionA2);
+  const t2 = ((square - b) * fractionA2);
+
+  if (t1 < 0 || t2 < 0) {
+    // Either one or both in past.
+    // Return time closer to the current time.
+    return t1 < t2 ? t2 : t1;
+  }
+
+  // Return time closer to the current time.
+  return t1 < t2 ? t1 : t2;
+};
+
+const handleCollision = col => {
   const a = col.a;
   const b = col.b;
   const ma = a.mass;
@@ -130,8 +162,9 @@ Circle2Circle.prototype.handleCollision = function(col) {
   const dv = Math.sqrt(dv2);
 
   let impact = 2.0 * (nx*vx + ny+vy) / (ma + mb);
-  if (impact < 12.0) impact = 12.0;
-  // if (impact < 120.0) impact = 120.0;
+  if (impact < IMPACT_MIN) {
+    impact = IMPACT_MIN;
+  }
 
   a.vx -= nx * mb * impact;
   a.vy -= ny * mb * impact;
@@ -139,11 +172,16 @@ Circle2Circle.prototype.handleCollision = function(col) {
   b.vy += ny * ma * impact;
 };
 
-module.exports = new Circle2Circle();
+module.exports = {
+  handleCollision,
+  testCollision
+};
 
-},{"./collision":2}],2:[function(require,module,exports){
+},{"./collision":3,"./config":4}],3:[function(require,module,exports){
 
-const ObjectPool = require('./lib/objectPool');
+'use strict';
+
+const ObjectPool = require('./objectPool');
 
 function Collision (a, b, t) {
   this.a = a;
@@ -166,58 +204,59 @@ Collision.prototype.equal = function(o) {
 
 const objectPool = new ObjectPool(Collision, 1000);
 
-objectPool.create = function(a, b, t) {
-  if (!this.freeIndexes.length) {
-    throw new Error('No more free space');
-  }
-  const poolIndex = this.freeIndexes.pop();
-  const next = this.pool[poolIndex];
-  next.update(a, b, t, poolIndex);
-  return next;
-};
-
 module.exports = objectPool;
 
-},{"./lib/objectPool":4}],3:[function(require,module,exports){
+},{"./objectPool":6}],4:[function(require,module,exports){
 
-const collision = require('./collision');
+module.exports = {
+  FRICTION: 0.85,
+  IMPACT_MIN: 0
+};
+
+},{}],5:[function(require,module,exports){
+
+const Circle = require('./circle');
 const circle2circle = require('./circle2circle');
+const collision = require('./collision');
 
 const equal = a => b => a.equal(b);
 const end = a => a.end();
 const move = t => a => a.move(t);
 const remove = a => collision.remove(a);
 const start = a => a.start();
+const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
+
 const onCollision = col => {
   col.a.onCollision(col);
   col.b.onCollision(col);
 };
-const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
-const getEarliestCollisions = (objects, prevResolvedCollisions, t) => {
+
+const getEarliestCollisions = (objects, prevCollisions, t) => {
   let col = null;
-  let firstCollisions = [];
+  let collisions = [];
   for (let i = 0; i < objects.length; i++) {
     for (let j = i + 1; j < objects.length; j++) {
       col = circle2circle.testCollision(objects[i], objects[j], t);
+
       if (col) {
-        if (!firstCollisions.length) {
-            firstCollisions.push(col);
-        } else if (col.t <= firstCollisions[0].t &&
-          !prevResolvedCollisions.some(equal(col))) {
-          if (col.t < firstCollisions[0].t) {
-            firstCollisions.forEach(remove);
-            firstCollisions.length = 1;
-            firstCollisions[0] = col;
-          } else {
-            firstCollisions.push(col);
-          }
-        } else {
+        if (!collisions.length) {
+            collisions.push(col);
+        } else if (col.t > collisions[0].t || prevCollisions.some(equal(col))) {
           remove(col);
+        } else {
+          if (col.t < collisions[0].t) {
+            collisions.forEach(remove);
+            collisions.length = 1;
+            collisions[0] = col;
+          } else {
+            collisions.push(col);
+          }
         }
       }
     }
   }
-  return firstCollisions;
+
+  return collisions;
 };
 
 const resolveCollisions = objects => {
@@ -225,6 +264,7 @@ const resolveCollisions = objects => {
   let t = 0.0;
   while (t < 1.0) {
     const cols = getEarliestCollisions(objects, resolved, t);
+
     if (cols.length) {
       const dt = cols[0].t;
       t += dt;
@@ -237,6 +277,7 @@ const resolveCollisions = objects => {
       t = 1.0;
     }
   }
+
   objects.forEach(end);
   resolved.forEach(remove);
 };
@@ -245,8 +286,8 @@ function Physics () {
   this.objects = [];
 };
 
-Physics.prototype.createCircle = function(x, y, radius) {
-  const o = circle2circle.createCircle(x, y, radius);
+Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
+  const o = new Circle(x, y, radius, isSensor, onCollision);
   this.objects.push(o);
   return o;
 };
@@ -258,7 +299,7 @@ Physics.prototype.step = function(t) {
 
 module.exports = Physics;
 
-},{"./circle2circle":1,"./collision":2}],4:[function(require,module,exports){
+},{"./circle":1,"./circle2circle":2,"./collision":3}],6:[function(require,module,exports){
 
 'use strict';
 
@@ -271,9 +312,7 @@ module.exports = Physics;
     updates initial parameters
   poolIndex : Integer
     the last argument of the update function must be stored in member variable with same name.
-
 */
-
 function ObjectPool(ClassVar, size, initialParams) {
   this.pool = [];
   this.freeIndexes = [];
@@ -286,18 +325,10 @@ function ObjectPool(ClassVar, size, initialParams) {
   }
 }
 
-// Example
-// Should be optimized for each new ClassVar?
-ObjectPool.prototype.create = function() {
-  if (!this.freeIndexes.length) {
-    throw new Error('No more free space');
-  }
-  // Let the function be optimized when not using arguments directly with spread.
-  const args = new Array(arguments.length);
-  for (let i = 0; args.length; i++) args[i] = arguments[i];
+ObjectPool.prototype.create = function(a, b, t) {
   const poolIndex = this.freeIndexes.pop();
   const next = this.pool[poolIndex];
-  next.update(...args, poolIndex);
+  next.update(a, b, t, poolIndex);
   return next;
 };
 
@@ -307,5 +338,5 @@ ObjectPool.prototype.remove = function(o) {
 
 module.exports = ObjectPool;
 
-},{}]},{},[3])(3)
+},{}]},{},[5])(5)
 });
