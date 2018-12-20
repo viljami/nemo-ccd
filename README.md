@@ -54,3 +54,8 @@ To put this in terms of quadratic formula we move the radius to the left so we g
 
 (source: https://stackoverflow.com/questions/43577298/calculating-collision-times-between-two-circles-physics, AWESOME answer from [TinfoilPancakes](https://stackoverflow.com/users/4343520/tinfoilpancakes) )
 
+Also these links were useful
+- [collision point calculatoin](https://gamedev.stackexchange.com/questions/71941/calculate-point-of-circle-circle-collision-between-frames)
+- [Formula of solving collision time](https://www.wolframalpha.com/input/?i=solve+t:+a+*+t%5E2+%2B+b+*+t+%2B+d), [WolframAlpha](https://www.wolframalpha.com/) is great tool to solve and double check math!
+- [Effect of mass to collision impact](https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
+- [Video tutoria of Circle Vs Circle Collisions C++l!](https://www.youtube.com/watch?v=LPzyNOHY3A4)
