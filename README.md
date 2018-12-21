@@ -29,7 +29,7 @@ Default localhost port for test environment is 8080 and url http://localhost:808
 - **[No rotational inertia](https://en.wikipedia.org/wiki/Moment_of_inertia)**, circles do not rotate and there is no rotational energy taken into account in collisions
 - **[Continuous Collision Detection](https://en.wikipedia.org/wiki/Collision_detection)**, the exact moment of collision is calculated for all collisions, objects are moved to touch at that point.
 - **Fixed time step**, each step duration is 1 time unit. One time step is 1.0 long and collisions are calculated betweem 0.0 (previous step end) to 1.0 (next step start). If collision happens at time 0.3 the objects are moved there and collision is handled and the evaluation continues until time 1.0. If collision happens afterwards it taken into account on the next step. If frame or physics update rate changes the physics steps always the same amount, regardless of the variation of the time between the step calls.
-- **Circle to circle collisions**, only circular objects are simulated, no other shapes
+- **Circle to circle collisions**, only circular objects are simulated, no other shapes.
 - **Sensors**, they can be collided with, but do not cause collision impact and can be driven through, sensor activates when the center of the non-sensor circle is inside of the sensor. Sensors do not collide with each other.
 - **Minimum impact** can be set to all collisions, this is the least bounce that happens on collision.
 - **World variables** can be customized:
@@ -86,3 +86,8 @@ d = c - r
 - [collision point calculatoin](https://gamedev.stackexchange.com/questions/71941/calculate-point-of-circle-circle-collision-between-frames)
 - [Effect of mass to collision impact](https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
 - [Video tutoria of Circle Vs Circle Collisions C++l!](https://www.youtube.com/watch?v=LPzyNOHY3A4)
+
+## Known bugs
+
+- Very small circles break the simulation. Try not to use smaller than 20.
+
