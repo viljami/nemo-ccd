@@ -1,8 +1,10 @@
 
 const test = require('tape');
-const circle2circle = require('./circle2circle');
+
 const Circle = require('./Circle');
+const circle2circle = require('./circle2circle');
 const collision = require('./collision');
+const config = require('./config');
 
 const handleCollision = circle2circle.handleCollision;
 const testCollision = circle2circle.testCollision;
@@ -103,9 +105,52 @@ test('circle2circle - Did collision happen', t => {
 });
 
 test('circle2circle - Handle collision', t => {
-  const a1 = new Circle(0, 0, 50, true);
-  const b1 = new Circle(50, 0, 50, true);
-  // t.equal(handleCollision(a1, b1, 0), undefined, 'Collision does not happen for sensors');
+  const a1 = new Circle(0, 0, 50);
+  const b1 = new Circle(0, 0, 50);
+  const col1 = circle2circle.testCollision(a1, b1);
+  handleCollision(col1)
+  const dx = b1.x - a1.x;
+  const dy = b1.y - a1.y;
+  t.equal(Math.round(Math.sqrt(dx*dx + dy*dy)), 100, 'Overlapping objects are pushed apart');
+  collision.remove(col1);
 
+  const a2 = new Circle(0, 0, 50);
+  const b2 = new Circle(150, 0, 50);
+  a2.vx = 100;
+  const col2 = circle2circle.testCollision(a2, b2);
+  handleCollision(col2);
+  t.equal(a2.vx, -20, 'Minimum collision impact is correct for x1');
+  t.equal(a2.vy, 0, 'Minimum collision impact is correct for y1');
+  t.equal(b2.vx, 120, 'Minimum collision impact is correct for x2');
+  t.equal(b2.vy, 0, 'Minimum collision impact is correct for y2');
+  collision.remove(col2);
+
+  const a3 = new Circle(0, 0, 50);
+  const b3 = new Circle(150, 0, 50);
+  a3.vx = 200;
+  b3.vx = -200;
+  const col3 = circle2circle.testCollision(a3, b3);
+  handleCollision(col3);
+  t.equal(a3.vx, -200, 'Collision impact is correct for x1');
+  t.equal(a3.vy, 0, 'Collision impact is correct for y1');
+  t.equal(b3.vx, 200, 'Collision impact is correct for x2');
+  t.equal(b3.vy, 0, 'Collision impact is correct for y2');
+  collision.remove(col3);
+
+  const a4 = new Circle(0, 0, 50);
+  const b4 = new Circle(150, 150, 50);
+  a4.vx = 200;
+  a4.vy = 200;
+  b4.vx = -200;
+  b4.vy = -200;
+  const col4 = circle2circle.testCollision(a4, b4);
+  handleCollision(col4);
+  t.equal(Math.round(a4.vx), -200, 'Compled collision impact is correct for x1');
+  t.equal(Math.round(a4.vy), -200, 'Complex collision impact is correct for y1');
+  t.equal(Math.round(b4.vx), 200, 'Complex collision impact is correct for x2');
+  t.equal(Math.round(b4.vy), 200, 'Complex collision impact is correct for y2');
+  collision.remove(col4);
+
+  t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'collision has as many free indexes as in the begging');
   t.end();
 });

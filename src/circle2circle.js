@@ -129,19 +129,17 @@ const handleCollision = col => {
   const b = col.b;
   const ma = a.mass;
   const mb = b.mass;
-  const r = a.radius + b.radius;
   const x = b.x - a.x;
   const y = b.y - a.y;
-  const nx = x / r;
-  const ny = y / r;
+  const d = Math.sqrt(x*x + y*y);
+  const nx = x / d;
+  const ny = y / d;
 
   const vx = b.vx - a.vx;
   const vy = b.vy - a.vy;
-  const dv2 = dist2(vx, vy);
-  const dv = Math.sqrt(dv2);
 
   // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
-  let impact = 2.0 * (ma * mb) / (ma + mb) * (nx*vx + ny*vy);
+  let impact = Math.abs(2.0 * (ma * mb) / (ma + mb) * (nx*vx + ny*vy));
   if (impact < IMPACT_MIN) {
     impact = IMPACT_MIN;
   }
