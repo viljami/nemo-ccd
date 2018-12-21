@@ -4,15 +4,46 @@ const config = require('./config');
 
 const IMPACT_MIN = config.IMPACT_MIN;
 
-const dist2 = (dx, dy) => dx*dx + dy*dy;
+const dist2 = (x, y) => x*x + y*y;
+
+const getSensorCollisionTime = (a, b) => {
+  const sensor = a.isSensor ? a : b;
+  const other = sensor === a ? b : a;
+
+  const x = sensor.x - other.x || 1;
+  const y = sensor.y - other.y || 1;
+  const d2 = dist2(x, y);
+  const r = sensor.radius * sensor.radius;
+
+  if (dist2 < r) {
+    return collision.create(sensor, other, 0.0);
+  }
+
+  return getCollisionTime(a, b, true);
+};
+
+const testSensorCollision = (a, b) => {
+  if (a.isSensor && b.isSensor) {
+    // Two sensor will never collide.
+    return;
+  }
+
+  const dt = getSensorCollisionTime(a, b);
+  if (dt < 0.0 || dt > 1.0) {
+    // Collision happens this turn only if 0 <= t <= 1
+    return;
+  }
+
+  return collision.create(a, b, dt);
+};
 
 const testCollision = (a, b, t) => {
   if (a.isSensor || b.isSensor) {
     return testSensorCollision(a, b);
   }
 
-  const x = (b.x - a.x) || 5;
-  const y = (b.y - a.y || 5);
+  const x = b.x - a.x || 1;
+  const y = b.y - a.y || 1;
   const d2 = dist2(x, y);
   const r = a.radius + b.radius;
   const r2 = r * r;
@@ -33,6 +64,7 @@ const testCollision = (a, b, t) => {
   }
 
   const dt = getCollisionTime(a, b);
+
   if (dt < 0 || t + dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
     return;
@@ -41,35 +73,17 @@ const testCollision = (a, b, t) => {
   return collision.create(a, b, dt)
 };
 
-const testSensorCollision = (a, b) => {
-  if (a.isSensor && b.isSensor) {
-    // Two sensor will never collide.
-    return;
-  }
-
-  const sensor = a.isSensor ? a : b;
-  const other = a.isSensor ? b : a;
-  const dt = getCollisionTime(sensor, other);
-
-  if (dt < 0.0 || dt > 1.0) {
-    // Collision happens this turn only if 0 <= t <= 1
-    return;
-  }
-
-  return collision.create(a, b, dt);
-};
-
 // Formula
-// a * t^2 + b * t + d = 0
+// a * t^2 + 2 * b * t + d = 0
 // Where
 // a = dot product of (o1.velocity - o2.velocity) with it self
 // b = dot product of (o1.velocity - o2.velocity) with (o2.position - o1.position)
 // c = dot product of (o1.position - o2.position) with it self
-// r = combined radiuses of the circles
+// r = power of two of combined radiuses of the circles
 // d = c - r
 // Solved for t
 // https://www.wolframalpha.com/input/?i=solve+t:+a+*+t%5E2+%2B+b+*+t+%2B+d
-const getCollisionTime = (o1, o2) => {
+const getCollisionTime = (o1, o2, isSensor) => {
   const x = o2.x - o1.x;
   const y = o2.y - o1.y;
   const vx = o2.vx - o1.vx;
@@ -84,17 +98,19 @@ const getCollisionTime = (o1, o2) => {
 
   const b = vx*x + vy*y;
   const c = x*x + y*y;
-  const r = o2.radius + o1.radius;
-  const inside = b*b - 4*a*(c - r);
+  const r = isSensor ?
+    (o1.radius - 1)*(o1.radius - 1) :
+    (o2.radius + o1.radius)*(o2.radius + o1.radius);
+  const inside = b*b - a*(c - r);
 
   if (inside < 0) {
     // results to imaginary number when squared
     // -> no collision this turn
-    return 2.0;
+    return -2.0;
   }
 
   const square = Math.sqrt(inside);
-  const fractionA2 = 1 / 2*a;
+  const fractionA2 = 1 / a;
   const t1 = -((square + b) * fractionA2);
   const t2 = ((square - b) * fractionA2);
 
@@ -124,7 +140,8 @@ const handleCollision = col => {
   const dv2 = dist2(vx, vy);
   const dv = Math.sqrt(dv2);
 
-  let impact = 2.0 * (nx*vx + ny+vy) / (ma + mb);
+  // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
+  let impact = 2.0 * (ma * mb) / (ma + mb) * (nx*vx + ny*vy);
   if (impact < IMPACT_MIN) {
     impact = IMPACT_MIN;
   }
