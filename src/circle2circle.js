@@ -50,7 +50,10 @@ const testCollision = (a, b, t) => {
 
   if (d2 < r2) {
     // Move objects apart
-    const d = Math.sqrt(d2);
+    let d = Math.sqrt(d2);
+    if (d === 0) {
+      d = 1;
+    }
     const nx = x / d;
     const ny = y / d;
     const rHalf = Math.ceil((r - d) / 2);
