@@ -30,17 +30,22 @@
       window.innerHeight : h + 250;
     for (let i = 0; i < 20; i++) {
       const o = physics.createCircle(
-        rand(minW, maxW), rand(minH, maxH), rand(5, 50)
+        rand(minW, maxW), rand(minH, maxH), rand(20, 50)
       );
     }
 
-    const projectile = physics.createCircle(window.innerWidth / 2, 0, 50);
+    physics.createCircle(w, h, 50, true);
+    physics.createCircle(w, h + 200, 50, true);
+    physics.createCircle(w, h - 200, 50, true);
+    physics.createCircle(w, h + 100, 50, true);
+    const projectile = physics.createCircle(w, 0, 50);
 
     const canvas = document.getElementById('physics');
     const ctx = canvas.getContext('2d');
 
-    const draw = a => {
+    const draw = fillStyle => a => {
       ctx.beginPath();
+      ctx.fillStyle = fillStyle;
       ctx.moveTo(a.x, a.y);
       ctx.arc(a.x, a.y, a.radius, 0, PI2);
       ctx.stroke();
@@ -61,7 +66,8 @@
 
       projectile.ay = 2;
       physics.step(t);
-      physics.objects.forEach(draw);
+      physics.actors.forEach(draw('#fff'));
+      physics.sensors.forEach(draw('#bbb'));
       time = t;
     };
 
