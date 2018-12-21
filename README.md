@@ -1,7 +1,7 @@
 
 # NEMO CCD
 
-Non-Elastic angular MOmentumless Continuous Collision Detection for circles written with JavaScript. No dependencies or external libraries.
+Elastic Continuous Collision Detection without rotational inertia for circles written with JavaScript. No dependencies or external libraries.
 
 The project [web site](https://viljami.github.io/nemo-ccd/) has a [demo](https://viljami.github.io/nemo-ccd/) running.
 
@@ -25,11 +25,11 @@ Default localhost port for test environment is 8080 and url http://localhost:808
 
 ## Key features
 
-- **Non-elastic**, objects do not change in collision and no energy is therefore lost, all the kinematic energy bounces circles off each other in the relation of their masses
-- **Angular Momentumless**, no rotational inertia, circles do not rotate and there is no rotational energy taken into account in collisions
-- **Continuous Collision Detection**, the exact moment of collision is calculated for all collisions, objects are moved to touch at that point. One time step is 1.0 long and collisions are calculated betweem 0.0 (previous step end) to 1.0 (next step start). If collision happens at time 0.3 the objects are moved there and collision is handled and the evaluation continues until time 1.0. If collision happens afterwards it taken into account on the next step.
+- **[Elastic collision](https://en.wikipedia.org/wiki/Elastic_collision)**, there is no net loss in kinetic energy in the system as a result of the collision
+- **[No rotational inertia](https://en.wikipedia.org/wiki/Moment_of_inertia)**, circles do not rotate and there is no rotational energy taken into account in collisions
+- **[Continuous Collision Detection](https://en.wikipedia.org/wiki/Collision_detection)**, the exact moment of collision is calculated for all collisions, objects are moved to touch at that point. One time step is 1.0 long and collisions are calculated betweem 0.0 (previous step end) to 1.0 (next step start). If collision happens at time 0.3 the objects are moved there and collision is handled and the evaluation continues until time 1.0. If collision happens afterwards it taken into account on the next step.
 - **Circle to circle collisions**, only circular objects are simulated, no other shapes
-- **Sensors**, they can be collided with, but do not cause collision impact and can be driven through
+- **Sensors**, they can be collided with, but do not cause collision impact and can be driven through, sensor activates when the center of the non-sensor circle is inside of the sensor. Sensors do not collide with each other.
 - **Minimum impact** can be set to all collisions, this is the least bounce that happens on collision.
 - **World variables** can be customized:
   - FRINCTION, how fast objects slow down affects speed
