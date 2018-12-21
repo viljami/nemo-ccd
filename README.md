@@ -49,28 +49,36 @@ Using the formula of position along a dimensions we can substitute everything in
 - Finally using that equation, we will know that the t values where d(t) = a.radius + b.radius are where collision starts or ends.
 To put this in terms of quadratic formula we move the radius to the left so we get d(t) - (a.radius + b.radius) = 0
 - We can then expand and simplify the resulting equation so everything is in terms of t and the constant values that we were given. Using that solve for both positive & negative values with the quadratic formula.
-  - *Here I found it useful to separate acceleration from the formulas. 4th degree polynomial solving for t turned into much more solvable 2nd degree polynomial*
+  - *Here I found it useful to separate acceleration from the formulas. 4th degree polynomial solving for t turned into much more solvable 2nd degree polynomial. This approximation for enough for my current case.*
 - This will handle errors as well because if you get two objects that will never collide, you will get an undefined or imaginary number.
 
 (source: https://stackoverflow.com/questions/43577298/calculating-collision-times-between-two-circles-physics, AWESOME answer from [TinfoilPancakes](https://stackoverflow.com/users/4343520/tinfoilpancakes) )
 
 ### Formula for t
 
-[Solve below formula for collision time (t)](https://www.wolframalpha.com/input/?i=solve+t:+a+*+t%5E2+%2B+b+*+t+%2B+d).
+Solve below formula for collision time (t). [Link to WolframAlpha solving it.]](https://www.wolframalpha.com/input/?i=solve+t:+a+*+t%5E2+%2B+2+*+b+*+t+%2B+c).
 
 ```
 # Solve for t
-a * t^2 + b * t + d = 0
+a * t^2 + 2 * b * t + d = 0
+=>
+t = -(sqrt(b^2 - a * c) + b) / a , a != 0
+OR
+t = (sqrt(b^2 - a * c) - b) / a , a != 0
+```
 
+Which ever of those formulas gives time that happens first is the collision time.
+
+When a is zero, then the circles are moving to the same direction with same speed. They will never collide if they are not already overlapping. And overlapping I am taking care of earlier.
+
+```
 # Where
 a = dot product of (circle2.velocity - circle1.velocity) with it self
 b = dot product of (circle2.velocity - circle1.velocity) with (circle2.position - circle1.position)
 c = dot product of (circle2.position - circle1.position) with it self
-r = circle1.radius + circle2.radius
+r = (circle1.radius + circle2.radius)^2
 d = c - r
 ```
-
-[WolframAlpha](https://www.wolframalpha.com/) is great tool to solve and double check math!
 
 ## Useful links
 - [collision point calculatoin](https://gamedev.stackexchange.com/questions/71941/calculate-point-of-circle-circle-collision-between-frames)
