@@ -47,6 +47,7 @@ I found a Stackoverflow post asking about circle collisions and [this answer](ht
 - We know the distance between two 2D points at any time t is the square root of ((a.x(t) - b.x(t))^2 + (a.y(t) - b.y(t))^2)
 Using the formula of position along a dimensions we can substitute everything in the distance equation in terms of just t and the constants we defined earlier. For shorthand we will call the function d(t);
 - Finally using that equation, we will know that the t values where d(t) = a.radius + b.radius are where collision starts or ends.
+  - *Careful here. The correct formula is d(t) = (r1 + r2)^2*
 To put this in terms of quadratic formula we move the radius to the left so we get d(t) - (a.radius + b.radius) = 0
 - We can then expand and simplify the resulting equation so everything is in terms of t and the constant values that we were given. Using that solve for both positive & negative values with the quadratic formula.
   - *Here I found it useful to separate acceleration from the formulas. 4th degree polynomial solving for t turned into much more solvable 2nd degree polynomial. This approximation for enough for my current case.*
