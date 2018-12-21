@@ -13,21 +13,16 @@ const getSensorCollisionTime = (a, b) => {
   const x = sensor.x - other.x || 1;
   const y = sensor.y - other.y || 1;
   const d2 = dist2(x, y);
-  const r = sensor.radius * sensor.radius;
+  const r2 = sensor.radius * sensor.radius;
 
-  if (dist2 < r) {
-    return collision.create(sensor, other, 0.0);
+  if (d2 < r2) {
+    return 0.0;
   }
 
-  return getCollisionTime(a, b, true);
+  return getCollisionTime(sensor, other, true);
 };
 
 const testSensorCollision = (a, b) => {
-  if (a.isSensor && b.isSensor) {
-    // Two sensor will never collide.
-    return;
-  }
-
   const dt = getSensorCollisionTime(a, b);
   if (dt < 0.0 || dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
@@ -130,11 +125,15 @@ const getCollisionTime = (o1, o2, isSensor) => {
 const handleCollision = col => {
   const a = col.a;
   const b = col.b;
+  if (a.isSensor || b.isSensor) {
+    return;
+  }
+
   const ma = a.mass;
   const mb = b.mass;
   const x = b.x - a.x;
   const y = b.y - a.y;
-  const d = Math.sqrt(x*x + y*y);
+  const d = Math.sqrt(x*x + y*y) || 1;
   const nx = x / d;
   const ny = y / d;
 

@@ -119,9 +119,9 @@ test('circle2circle - Handle collision', t => {
   a2.vx = 100;
   const col2 = circle2circle.testCollision(a2, b2);
   handleCollision(col2);
-  t.equal(a2.vx, 100 - config.IMPACT_MIN, 'Minimum collision impact is correct for x1');
+  t.equal(a2.vx, 100 - (config.IMPACT_MIN < 100 ? 100 : config.IMPACT_MIN), 'Minimum collision impact is correct for x1');
   t.equal(a2.vy, 0, 'Minimum collision impact is correct for y1');
-  t.equal(b2.vx, config.IMPACT_MIN, 'Minimum collision impact is correct for x2');
+  t.equal(b2.vx, config.IMPACT_MIN < 100 ? 100 : config.IMPACT_MIN, 'Minimum collision impact is correct for x2');
   t.equal(b2.vy, 0, 'Minimum collision impact is correct for y2');
   collision.remove(col2);
 

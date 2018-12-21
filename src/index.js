@@ -37,9 +37,15 @@ Physics.prototype.getActorCollisions = function(prevCollisions, t) {
   let collisions = [];
   for (let i = 0; i < actors.length; i++) {
     for (let j = i + 1; j < actors.length; j++) {
-      col = circle2circle.testCollision(actors[i], actors[j], t);
-      if (col && !prevCollisions.some(equal(col))) {
-        collisions.push(col);
+      if (i !== j) {
+        col = circle2circle.testCollision(actors[i], actors[j], t);
+        if (col) {
+          if (prevCollisions.some(equal(col))) {
+            remove(col);
+          } else {
+            collisions.push(col);
+          }
+        }
       }
     }
   }
@@ -53,16 +59,21 @@ Physics.prototype.getSensorCollisions = function(prevCollisions, t) {
   let col = null;
   let collisions = [];
   for (let i = 0; i < actors.length; i++) {
-    for (let j = i + 1; j < sensors.length; j++) {
+    for (let j = 0; j < sensors.length; j++) {
       col = circle2circle.testCollision(sensors[j], actors[i], t);
-      if (col && !prevCollisions.some(equal(col))) {
-        collisions.push(col);
+      if (col) {
+        if (prevCollisions.some(equal(col))) {
+          remove(col);
+        } else {
+          collisions.push(col);
+        }
       }
     }
   }
 
   return collisions;
 };
+
 Physics.prototype.step = function() {
   const actors = this.actors;
   const sensors = this.sensors;
