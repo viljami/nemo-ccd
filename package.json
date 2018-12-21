@@ -15,6 +15,7 @@
     "start": "node index.js",
     "build": "./node_modules/.bin/browserify --standalone Physics src/index.js > dist/physics.js && ./node_modules/.bin/uglifyjs dist/physics.js > dist/physics.min.js",
     "watch-build": "./node_modules/.bin/npm-watch build",
+    "watch-test": "./node_modules/.bin/npm-watch test",
     "test": "tape 'src/**/*.test.js' | tap-spec"
   },
   "devDependencies": {
