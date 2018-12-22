@@ -84,7 +84,9 @@ d = c - r
 
 ## Useful links
 - [collision point calculatoin](https://gamedev.stackexchange.com/questions/71941/calculate-point-of-circle-circle-collision-between-frames)
+- [collision point calculatoin different point of view](https://physics.stackexchange.com/questions/221895/time-until-next-collision)
 - [Effect of mass to collision impact](https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
+- [More about collision handling](http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code)
 - [Video tutoria of Circle Vs Circle Collisions C++l!](https://www.youtube.com/watch?v=LPzyNOHY3A4)
 
 ## Known bugs
