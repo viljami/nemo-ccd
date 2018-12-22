@@ -47,7 +47,7 @@ test('circle2circle - Did collision happen', t => {
   const colA3poolIndex = colA3.poolIndex;
   const colB3 = testCollision(a3, b3, 0);
   colA3.poolIndex = colB3.poolIndex;
-  t.deepEqual(colB3, colA3, 'perfect overlapping of still objects');
+  t.deepEqual(colB3, colA3, 'Perfect overlapping of still objects');
   colA3.poolIndex = colA3poolIndex;
   collision.remove(colA3);
   collision.remove(colB3);
@@ -63,7 +63,7 @@ test('circle2circle - Did collision happen', t => {
   const colA4poolIndex = colA4.poolIndex;
   const colB4 = testCollision(a4, b4, 0);
   colA4.poolIndex = colB4.poolIndex;
-  t.deepEqual(colB4, colA4, 'collision of one object is moving');
+  t.deepEqual(colB4, colA4, 'Collision of one object is moving');
   colA4.poolIndex = colA4poolIndex;
   collision.remove(colA4);
   collision.remove(colB4);
@@ -79,7 +79,7 @@ test('circle2circle - Did collision happen', t => {
   const colA5poolIndex = colA5.poolIndex;
   const colB5 = testCollision(a5, b5, 0);
   colA5.poolIndex = colB5.poolIndex;
-  t.deepEqual(colB5, colA5, 'collision of both objects are moving');
+  t.deepEqual(colB5, colA5, 'Collision of both objects are moving');
   colA5.poolIndex = colA5poolIndex;
   collision.remove(colA5);
   collision.remove(colB5);
@@ -95,12 +95,12 @@ test('circle2circle - Did collision happen', t => {
   const colA6poolIndex = colA6.poolIndex;
   const colB6 = testCollision(a6, b6, 0);
   colA6.poolIndex = colB6.poolIndex;
-  t.deepEqual(colB6, colA6, 'collision of both objects are moving fast');
+  t.deepEqual(colB6, colA6, 'Collision of both objects are moving fast');
   colA6.poolIndex = colA6poolIndex;
   collision.remove(colA6);
   collision.remove(colB6);
 
-  t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'collision has as many free indexes as in the begging');
+  t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'Collision has as many free indexes as in the begging');
   t.end();
 });
 
@@ -151,6 +151,6 @@ test('circle2circle - Handle collision', t => {
   t.equal(Math.round(b4.vy), 200, 'Complex collision impact is correct for y2');
   collision.remove(col4);
 
-  t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'collision has as many free indexes as in the begging');
+  t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'Collision has as many free indexes as in the begging');
   t.end();
 });
