@@ -3,6 +3,12 @@ const test = require('tape');
 const Physics = require('./index');
 const collision = require('./collision');
 
+const rSign = () => Math.random() < 0.5 ? -1 : 1;
+const moveRandom = a => {
+  a.ax += rSign() * Math.random() * 2;
+  a.ay += rSign() * Math.random() * 2;
+};
+
 test('Physics', t => {
   const physics = new Physics();
 
@@ -36,7 +42,8 @@ test('Physics', t => {
 
   let counter = 0;
   const startTime = Date.now();
-  while (Date.now() - startTime < 300) {
+  while (Date.now() - startTime < 500) {
+    physics.actors.forEach(moveRandom);
     physics.step();
     counter++;
   }

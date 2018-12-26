@@ -10,15 +10,33 @@
       margin: 0;
       padding: 0;
     }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
   <canvas id="physics"></canvas>
+  <footer>
+    <ul>
+      <li>Solid circles are white.</li>
+      <li>Sensors are dashed.</li>
+      <li>Sensors collide when the center of a solid circle is in the sensor's radius.</li>
+    </ul>
+  </footer>
   <script type="text/javascript">
     const PI2 = Math.PI * 2;
     const physics = new Physics();
 
     const rand = (n, m) => Math.floor(Math.random() * (m - n) + n);
+
+    function setRed() {
+      this.color = '#f00';
+    };
 
     const w = window.innerWidth / 2;
     const minW = w - 250 < 0 ? 0 : w - 250;
@@ -34,22 +52,42 @@
       );
     }
 
-    physics.createCircle(w, h, 50, true);
-    physics.createCircle(w, h + 200, 50, true);
-    physics.createCircle(w, h - 200, 50, true);
-    physics.createCircle(w, h + 100, 50, true);
+
+
+    physics.createCircle(w, h, 50, true, setRed);
+    physics.createCircle(w, h + 200, 50, true, setRed);
+    physics.createCircle(w, h - 200, 50, true, setRed);
+    physics.createCircle(w, h + 100, 50, true, setRed);
+
     const projectile = physics.createCircle(w, 0, 50);
 
     const canvas = document.getElementById('physics');
     const ctx = canvas.getContext('2d');
 
-    const draw = fillStyle => a => {
+    const drawSolid = style => a => {
       ctx.beginPath();
-      ctx.fillStyle = fillStyle;
+      ctx.fillStyle = style;
+      ctx.moveTo(a.x, a.y);
+      ctx.arc(a.x, a.y, a.radius, 0, PI2);
+      ctx.fill();
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#000';
+      ctx.moveTo(a.x, a.y);
+      ctx.moveTo(a.x + a.r, a.y);
+      ctx.stroke();
+    };
+
+    const drawSensor = style => a => {
+      ctx.beginPath();
+      ctx.setLineDash([5, 10]);
+      ctx.strokeStyle = a.color;
       ctx.moveTo(a.x, a.y);
       ctx.arc(a.x, a.y, a.radius, 0, PI2);
       ctx.stroke();
+      a.color = '#fff';
     };
+
+    ctx.setLineDash([5, 15]);
 
     let time = 0;
     let highest = 0;
@@ -66,8 +104,8 @@
 
       projectile.ay = 2;
       physics.step(t);
-      physics.actors.forEach(draw('#fff'));
-      physics.sensors.forEach(draw('#bbb'));
+      physics.sensors.forEach(drawSensor('#bbb'));
+      physics.actors.forEach(drawSolid('#fff'));
       time = t;
     };
 

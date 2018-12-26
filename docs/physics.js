@@ -262,6 +262,8 @@ const onCollision = col => {
 function Physics () {
   this.actors = [];
   this.sensors = [];
+  this.cols = [];
+  this.resolved = [];
 };
 
 Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
@@ -324,8 +326,8 @@ Physics.prototype.step = function() {
 
   let cols1 = null;
   let cols2 = null;
-  const cols = [];
-  let resolved = [];
+  const cols = this.cols;
+  let resolved = this.resolved;
   let t = 0.0;
   while (t < 1.0) {
     cols1 = this.getActorCollisions(resolved, t);
@@ -379,6 +381,7 @@ Physics.prototype.step = function() {
 
   actors.forEach(end);
   resolved.forEach(remove);
+  resolved.length = 0;
 };
 
 module.exports = Physics;
