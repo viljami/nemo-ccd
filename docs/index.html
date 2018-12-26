@@ -54,10 +54,10 @@
 
 
 
-    physics.createCircle(w, h, 50, true, setRed);
-    physics.createCircle(w, h + 200, 50, true, setRed);
-    physics.createCircle(w, h - 200, 50, true, setRed);
-    physics.createCircle(w, h + 100, 50, true, setRed);
+    physics.createCircle(w, h, rand(30, 50), true, setRed);
+    physics.createCircle(w, h + 200, rand(30, 50), true, setRed);
+    physics.createCircle(w, h - 200, rand(50, 70), true, setRed);
+    physics.createCircle(w, h + 100, rand(30, 50), true, setRed);
 
     const projectile = physics.createCircle(w, 0, 50);
 
