@@ -20,7 +20,7 @@
   </style>
 </head>
 <body>
-  <canvas id="physics"></canvas>
+  <canvas id="gameCanvas"></canvas>
   <footer>
     <ul>
       <li>Solid circles are white.</li>
@@ -61,7 +61,7 @@
 
     const projectile = physics.createCircle(w, 0, 50);
 
-    const canvas = document.getElementById('physics');
+    const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
     const drawSolid = style => a => {
@@ -87,10 +87,7 @@
       a.color = '#fff';
     };
 
-    ctx.setLineDash([5, 15]);
-
     let time = 0;
-    let highest = 0;
 
     const loop = t => {
       requestAnimationFrame(loop);
@@ -98,7 +95,6 @@
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
       const dt = t - time;
-      if (dt > highest) highest = dt;
       ctx.fillStyle = '#fff';
       ctx.fillText(Math.floor(dt) + 'ms', 10, 30);
 
@@ -120,6 +116,7 @@
       window.removeEventListener('load', load);
       time = performance.now();
 
+      ctx.setLineDash([5, 15]);
       ctx.font = '20px arial';
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
