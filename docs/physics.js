@@ -188,15 +188,15 @@ const handleCollision = col => {
   const vy = b.vy - a.vy;
 
   // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
-  let impact = Math.abs(2.0 * (ma * mb) / (ma + mb) * (nx*vx + ny*vy));
+  let impact = Math.abs(2.0 * (nx*vx + ny*vy) * (ma * mb) / (ma + mb));
   if (impact < IMPACT_MIN) {
     impact = IMPACT_MIN;
   }
 
-  a.vx -= nx * mb * impact;
-  a.vy -= ny * mb * impact;
-  b.vx += nx * ma * impact;
-  b.vy += ny * ma * impact;
+  a.vx -= nx * impact / ma;
+  a.vy -= ny * impact / ma;
+  b.vx += nx * impact / mb;
+  b.vy += ny * impact / mb;
 };
 
 module.exports = {

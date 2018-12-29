@@ -145,11 +145,30 @@ test('circle2circle - Handle collision', t => {
   b4.vy = -200;
   const col4 = circle2circle.testCollision(a4, b4);
   handleCollision(col4);
-  t.equal(Math.round(a4.vx), -200, 'Compled collision impact is correct for x1');
+  t.equal(Math.round(a4.vx), -200, 'Complex collision impact is correct for x1');
   t.equal(Math.round(a4.vy), -200, 'Complex collision impact is correct for y1');
   t.equal(Math.round(b4.vx), 200, 'Complex collision impact is correct for x2');
   t.equal(Math.round(b4.vy), 200, 'Complex collision impact is correct for y2');
   collision.remove(col4);
+
+  const a5 = new Circle(0, 0, 50);
+  a5.vx = 200;
+  a5.vy = 200;
+  a5.mass = 10;
+
+  const b5 = new Circle(150, 150, 50);
+  b5.vx = -200;
+  b5.vy = -200;
+  b5.mass = 1;
+
+  const col5 = circle2circle.testCollision(a5, b5);
+
+  handleCollision(col5);
+  t.equal(Math.round(a5.vx), 127, 'Heavy collision impact is correct for x1');
+  t.equal(Math.round(a5.vy), 127, 'Heavy collision impact is correct for y1');
+  t.equal(Math.round(b5.vx), 527, 'Heavy collision impact is correct for x2');
+  t.equal(Math.round(b5.vy), 527, 'Heavy collision impact is correct for y2');
+  collision.remove(col5);
 
   t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'Collision has as many free indexes as in the begging');
   t.end();
