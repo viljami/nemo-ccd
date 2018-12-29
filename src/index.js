@@ -2,6 +2,7 @@
 const Circle = require('./circle');
 const circle2circle = require('./circle2circle');
 const collision = require('./collision');
+const config = require('./config');
 
 const end = a => a.end();
 const equal = a => b => a.equal(b);
@@ -22,6 +23,9 @@ function Physics () {
   this.cols = [];
   this.resolved = [];
 };
+
+Physics.prototype.config = config;
+Physics.prototype.Circle = Circle;
 
 Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
   const o = new Circle(x, y, radius, isSensor, onCollision);

@@ -243,6 +243,7 @@ module.exports = {
 const Circle = require('./circle');
 const circle2circle = require('./circle2circle');
 const collision = require('./collision');
+const config = require('./config');
 
 const end = a => a.end();
 const equal = a => b => a.equal(b);
@@ -263,6 +264,9 @@ function Physics () {
   this.cols = [];
   this.resolved = [];
 };
+
+Physics.prototype.config = config;
+Physics.prototype.Circle = Circle;
 
 Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
   const o = new Circle(x, y, radius, isSensor, onCollision);
@@ -384,7 +388,7 @@ Physics.prototype.step = function() {
 
 module.exports = Physics;
 
-},{"./circle":1,"./circle2circle":2,"./collision":3}],6:[function(require,module,exports){
+},{"./circle":1,"./circle2circle":2,"./collision":3,"./config":4}],6:[function(require,module,exports){
 
 'use strict';
 
