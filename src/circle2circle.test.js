@@ -164,11 +164,31 @@ test('circle2circle - Handle collision', t => {
   const col5 = circle2circle.testCollision(a5, b5);
 
   handleCollision(col5);
-  t.equal(Math.round(a5.vx), 127, 'Heavy collision impact is correct for x1');
-  t.equal(Math.round(a5.vy), 127, 'Heavy collision impact is correct for y1');
-  t.equal(Math.round(b5.vx), 527, 'Heavy collision impact is correct for x2');
-  t.equal(Math.round(b5.vy), 527, 'Heavy collision impact is correct for y2');
+  t.equal(Math.round(a5.vx), 127, 'Heavy and small collision impact is correct for x1');
+  t.equal(Math.round(a5.vy), 127, 'Heavy and small collision impact is correct for y1');
+  t.equal(Math.round(b5.vx), 527, 'Heavy and small collision impact is correct for x2');
+  t.equal(Math.round(b5.vy), 527, 'Heavy and small collision impact is correct for y2');
   collision.remove(col5);
+
+  const a6 = new Circle(0, 0, 50);
+  a6.vx = 100;
+  a6.vy = 100;
+  a6.mass = 10;
+
+  const b6 = new Circle(150, 150, 50);
+  b6.vx = -100;
+  b6.vy = -100;
+  b6.mass = 10;
+
+  const col6 = circle2circle.testCollision(a6, b6);
+
+  handleCollision(col6);
+  t.equal(Math.round(a6.vx), -100, 'Heavy and heavy collision impact is correct for x1');
+  t.equal(Math.round(a6.vy), -100, 'Heavy and heavy collision impact is correct for y1');
+  t.equal(Math.round(b6.vx), 100, 'Heavy and heavy collision impact is correct for x2');
+  t.equal(Math.round(b6.vy), 100, 'Heavy and heavy collision impact is correct for y2');
+  collision.remove(col6);
+
 
   t.equal(collision.freeIndexes.length, initialFreeIndexesLength, 'Collision has as many free indexes as in the begging');
   t.end();

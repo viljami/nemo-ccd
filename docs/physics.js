@@ -49,8 +49,6 @@ module.exports = Circle;
 const collision = require('./collision');
 const config = require('./config');
 
-const IMPACT_MIN = config.IMPACT_MIN;
-
 const dist2 = (x, y) => x*x + y*y;
 
 const getSensorCollisionTime = (a, b) => {
@@ -189,8 +187,8 @@ const handleCollision = col => {
 
   // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
   let impact = Math.abs(2.0 * (nx*vx + ny*vy) * (ma * mb) / (ma + mb));
-  if (impact < IMPACT_MIN) {
-    impact = IMPACT_MIN;
+  if (impact < config.IMPACT_MIN) {
+    impact = config.IMPACT_MIN;
   }
 
   a.vx -= nx * impact / ma;
