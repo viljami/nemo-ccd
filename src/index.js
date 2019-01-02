@@ -7,15 +7,12 @@ const config = require('./config');
 const end = a => a.end();
 const equal = a => b => a.equal(b);
 const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
-const move = t => a => a.move(t);
-const remove = a => collision.remove(a);
-const start = a => a.start();
+const remove = collision.remove.bind(collision);
 
 const onCollision = col => {
   col.a.onCollision(col);
   col.b.onCollision(col);
 };
-
 
 function Physics () {
   this.actors = [];
@@ -29,11 +26,13 @@ Physics.prototype.Circle = Circle;
 
 Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
   const o = new Circle(x, y, radius, isSensor, onCollision);
+
   if (isSensor) {
     this.sensors.push(o);
   } else {
     this.actors.push(o);
   }
+
   return o;
 };
 
@@ -41,16 +40,15 @@ Physics.prototype.getActorCollisions = function(prevCollisions, t) {
   const actors = this.actors;
   let col = null;
   let collisions = [];
+
   for (let i = 0; i < actors.length; i++) {
     for (let j = i + 1; j < actors.length; j++) {
-      if (i !== j) {
-        col = circle2circle.testCollision(actors[i], actors[j], t);
-        if (col) {
-          if (prevCollisions.some(equal(col))) {
-            remove(col);
-          } else {
-            collisions.push(col);
-          }
+      col = circle2circle.testCollision(actors[i], actors[j], t);
+      if (col) {
+        if (prevCollisions.some(equal(col))) {
+          remove(col);
+        } else {
+          collisions.push(col);
         }
       }
     }
@@ -83,7 +81,6 @@ Physics.prototype.getSensorCollisions = function(prevCollisions, t) {
 Physics.prototype.step = function() {
   const actors = this.actors;
   const sensors = this.sensors;
-  this.actors.forEach(start);
 
   let cols1 = null;
   let cols2 = null;
@@ -128,20 +125,32 @@ Physics.prototype.step = function() {
     if (cols.length) {
       const dt = cols[0].t;
       t += dt;
-      actors.forEach(move(dt));
-      cols.forEach(handleCircleCollision(t));
-      cols.forEach(onCollision);
+      for (let i = 0; i < actors.length; i++) {
+        actors[i].move(dt);
+      }
+      for (let i = 0; i < cols.length; i++) {
+        circle2circle.handleCollision(cols[i], t);
+        cols[i].a.onCollision(cols[i]);
+        cols[i].b.onCollision(cols[i]);
+      }
       Array.prototype.push.apply(resolved, cols);
     } else {
-      actors.forEach(move(1.0 - t));
+      for (let i = 0; i < actors.length; i++) {
+        actors[i].move(1.0 - t);
+      }
       t = 1.0;
     }
 
     cols.length = 0;
   }
 
-  actors.forEach(end);
-  resolved.forEach(remove);
+  for (let i = 0; i < actors.length; i++) {
+    actors[i].end();
+  }
+
+  for (let i = 0; i < resolved.length; i++) {
+    remove(resolved[i]);
+  }
   resolved.length = 0;
 };
 

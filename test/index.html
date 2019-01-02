@@ -97,7 +97,7 @@
       ctx.fillStyle = '#fff';
       ctx.fillText(Math.floor(dt) + 'ms', 10, 30);
 
-      projectile.ay = 2;
+      projectile.vy = 6;
       physics.step(t);
       physics.sensors.forEach(drawSensor('#bbb'));
       physics.actors.forEach(drawSolid('#fff'));

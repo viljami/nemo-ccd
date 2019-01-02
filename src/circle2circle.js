@@ -2,26 +2,21 @@
 const collision = require('./collision');
 const config = require('./config');
 
-const dist2 = (x, y) => x*x + y*y;
-
-const getSensorCollisionTime = (a, b) => {
+const testSensorCollision = (a, b) => {
   const sensor = a.isSensor ? a : b;
   const other = sensor === a ? b : a;
 
   const x = sensor.x - other.x || 1;
   const y = sensor.y - other.y || 1;
-  const d2 = dist2(x, y);
+  const d2 = x*x + y*y;
   const r2 = sensor.radius * sensor.radius;
 
   if (d2 < r2) {
     return 0.0;
   }
 
-  return getCollisionTime(sensor, other, true);
-};
+  const dt = getCollisionTime(sensor, other, true);
 
-const testSensorCollision = (a, b) => {
-  const dt = getSensorCollisionTime(a, b);
   if (dt < 0.0 || dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
     return;
@@ -37,16 +32,13 @@ const testCollision = (a, b, t) => {
 
   const x = b.x - a.x || 1;
   const y = b.y - a.y || 1;
-  const d2 = dist2(x, y);
+  const d2 = x*x + y*y;
   const r = a.radius + b.radius;
   const r2 = r * r;
 
   if (d2 < r2) {
     // Move objects apart
-    let d = Math.sqrt(d2);
-    if (d === 0) {
-      d = 1;
-    }
+    let d = Math.sqrt(d2) || 1;
     const nx = x / d;
     const ny = y / d;
     const rHalf = Math.ceil((r - d) / 2);

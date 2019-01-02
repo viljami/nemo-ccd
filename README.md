@@ -56,7 +56,7 @@ To put this in terms of quadratic formula we move the radius to the left so we g
 
 (source: https://stackoverflow.com/questions/43577298/calculating-collision-times-between-two-circles-physics, AWESOME answer from [TinfoilPancakes](https://stackoverflow.com/users/4343520/tinfoilpancakes) )
 
-### Formula for t
+### Formula for when the collision happens (t)
 
 Solve below formula for collision time (t). [Link to WolframAlpha solving it.]](https://www.wolframalpha.com/input/?i=solve+t:+a+*+t%5E2+%2B+2+*+b+*+t+%2B+c).
 
@@ -81,6 +81,57 @@ c = dot product of (circle2.position - circle1.position) with it self
 r = (circle1.radius + circle2.radius)^2
 d = c - r
 ```
+
+### Formula for impact
+
+Elastic collision impact.
+
+```
+# True to elastic collision
+Vai + Vaf = Vbi + Vbf
+
+# Vai = initial velocity of object a
+# Vaf = final velocity of object a
+# Vbi = initial velocity of object b
+# Vbf = final velocity of object b
+
+Vaf = Vbi + Vbf - Vai
+
+# Vaf and Vbf are unknown
+
+# Conservation of Momentum
+Ma * Vai + Mb * Vbi = Ma * Vaf + Mb * Vbf
+
+# Ma = Mass of object a
+# Mb = Mass of object b
+
+Ma * Vai + Mb * Vbi = Ma * (Vbi + Vbf - Vai) + Mb * Vbf
+Ma * Vai + Mb * Vbi = Ma * Vbi + Ma * Vbf - Ma * Vai + Mb * Vbf
+2 * Ma * Vai + Mb * Vbi - Ma * Vbi = Ma * Vbf + Mb * Vbf
+2 * Ma * Vai + Mb * Vbi - Ma * Vbi = (Ma + Mb) * Vbf
+Vbf = (2 * Ma * Vai + Mb * Vbi - Ma * Vbi) / (Ma + Mb)
+
+Vbf = (2 * Ma * Vai + (Mb - Ma) * Vbi) / (Ma + Mb)
+
+# Vaf can be calcuated after calculating Vbf.
+```
+
+The direction of after the collision speed is along the normal of the two circles center points.
+
+```
+p = pa - pb
+d = ||p||
+n = p / d
+```
+
+But.
+
+```
+
+```
+
+
+[source](https://www.khanacademy.org/science/physics/linear-momentum/elastic-and-inelastic-collisions/v/how-to-use-the-shortcut-for-solving-elastic-collisions)
 
 ## Useful links
 - [collision point calculatoin](https://gamedev.stackexchange.com/questions/71941/calculate-point-of-circle-circle-collision-between-frames)

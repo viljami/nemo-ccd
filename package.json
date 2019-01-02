@@ -16,15 +16,16 @@
     "build": "./node_modules/.bin/browserify --standalone Physics src/index.js > dist/physics.js && ./node_modules/.bin/uglifyjs dist/physics.js > dist/physics.min.js",
     "watch-build": "./node_modules/.bin/npm-watch build",
     "watch-test": "./node_modules/.bin/npm-watch test",
-    "test": "tape 'src/**/*.test.js' | tap-spec"
+    "test": "nyc tape 'src/**/*.test.js' | tap-spec"
   },
   "devDependencies": {
     "browserify": "^16.2.3",
+    "express": "^4.16.4",
     "npm-watch": "^0.5.0",
+    "nyc": "^13.1.0",
     "tap-spec": "^5.0.0",
     "tape": "^4.9.1",
-    "uglify-es": "^3.3.9",
-    "express": "^4.16.4"
+    "uglify-es": "^3.3.9"
   },
   "keywords": [
     "physics",

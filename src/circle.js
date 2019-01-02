@@ -4,25 +4,20 @@ const config = require('./config');
 const FRICTION = config.FRICTION;
 
 function Circle (x, y, radius, isSensor, onCollision) {
-  this.x = x || 0;
-  this.y = y || 0;
+  this.x = x;
+  this.y = y;
   this.vx = 0;
   this.vy = 0;
-  this.ax = 0;
-  this.ay = 0;
   this.mass = 1;
-  this.radius = radius || 10;
-  this.isSensor = isSensor || false;
-  if (onCollision) this.onCollision = onCollision;
+  this.radius = radius;
+  this.isSensor = !!isSensor;
+  this.onCollisionCallback = onCollision;
 }
 
-Circle.prototype.onCollision = function () {
-  return undefined;
-};
-
-Circle.prototype.start = function () {
-  this.vx += this.ax;
-  this.vy += this.ay;
+Circle.prototype.onCollision = function (col) {
+  if (this.onCollisionCallback) {
+    return this.onCollisionCallback(col)
+  }
 };
 
 Circle.prototype.move = function (t) {
@@ -33,8 +28,6 @@ Circle.prototype.move = function (t) {
 Circle.prototype.end = function () {
   this.x = Math.round(this.x);
   this.y = Math.round(this.y);
-  this.ax *= FRICTION;
-  this.ay *= FRICTION;
   this.vx *= FRICTION;
   this.vy *= FRICTION;
   this.vx = Math.trunc(this.vx);
