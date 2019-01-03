@@ -12,7 +12,7 @@ const testSensorCollision = (a, b) => {
   const r2 = sensor.radius * sensor.radius;
 
   if (d2 < r2) {
-    return 0.0;
+    return collision.create(a, b, 0.0);
   }
 
   const dt = getCollisionTime(sensor, other, true);
