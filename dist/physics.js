@@ -13,6 +13,11 @@ function Circle (x, y, radius, isSensor, onCollision) {
   this.radius = radius;
   this.isSensor = !!isSensor;
   this.onCollisionCallback = onCollision;
+
+  this.nextCPIndex = 0;
+  this.checked = 0;
+  this.shield = 0;
+  this.timeout = 100;
 }
 
 Circle.prototype.onCollision = function (col) {
@@ -91,7 +96,7 @@ const testCollision = (a, b, t) => {
     return collision.create(a, b, 0.0); // immidiate collision
   }
 
-  const dt = getCollisionTime(a, b);
+  const dt = getCollisionTime(a, b, false);
 
   if (dt < 0 || t + dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
@@ -170,6 +175,11 @@ const handleCollision = col => {
   const vx = b.vx - a.vx;
   const vy = b.vy - a.vy;
 
+  if (a.vx === 0 && a.vy === 0 &&
+    b.vx === 0 && b.vy === 0) {
+    return;
+  }
+
   // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
   let impact = Math.abs(2.0 * (nx*vx + ny*vy) * (ma * mb) / (ma + mb));
   if (impact < config.IMPACT_MIN) {
@@ -208,11 +218,11 @@ Collision.prototype.update = function(a, b, t, poolIndex) {
 }
 
 Collision.prototype.equal = function(o) {
-  if (this.isSensor || o.isSensor) {
-    return this.a === o.a && this.b === o.b;
-  }
+  // if (this.isSensor || o.isSensor) {
+  return this.a === o.a && this.b === o.b;
+  // }
 
-  return this.a === o.a && this.b === o.b && this.t === o.t;
+  // return this.a === o.a && this.b === o.b && this.t === o.t;
 };
 
 const objectPool = new ObjectPool(Collision, 1000);
@@ -373,13 +383,8 @@ Physics.prototype.step = function() {
     cols.length = 0;
   }
 
-  for (let i = 0; i < actors.length; i++) {
-    actors[i].end();
-  }
-
-  for (let i = 0; i < resolved.length; i++) {
-    remove(resolved[i]);
-  }
+  actors.forEach(end);
+  resolved.forEach(remove);
   resolved.length = 0;
 };
 

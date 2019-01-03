@@ -144,13 +144,8 @@ Physics.prototype.step = function() {
     cols.length = 0;
   }
 
-  for (let i = 0; i < actors.length; i++) {
-    actors[i].end();
-  }
-
-  for (let i = 0; i < resolved.length; i++) {
-    remove(resolved[i]);
-  }
+  actors.forEach(end);
+  resolved.forEach(remove);
   resolved.length = 0;
 };
 

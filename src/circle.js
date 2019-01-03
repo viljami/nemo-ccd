@@ -12,6 +12,11 @@ function Circle (x, y, radius, isSensor, onCollision) {
   this.radius = radius;
   this.isSensor = !!isSensor;
   this.onCollisionCallback = onCollision;
+
+  this.nextCPIndex = 0;
+  this.checked = 0;
+  this.shield = 0;
+  this.timeout = 100;
 }
 
 Circle.prototype.onCollision = function (col) {

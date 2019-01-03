@@ -5,25 +5,25 @@ const config = require('./config');
 const FRICTION = config.FRICTION;
 
 function Circle (x, y, radius, isSensor, onCollision) {
-  this.x = x || 0;
-  this.y = y || 0;
+  this.x = x;
+  this.y = y;
   this.vx = 0;
   this.vy = 0;
-  this.ax = 0;
-  this.ay = 0;
   this.mass = 1;
-  this.radius = radius || 10;
-  this.isSensor = isSensor || false;
-  if (onCollision) this.onCollision = onCollision;
+  this.radius = radius;
+  this.isSensor = !!isSensor;
+  this.onCollisionCallback = onCollision;
+
+  this.nextCPIndex = 0;
+  this.checked = 0;
+  this.shield = 0;
+  this.timeout = 100;
 }
 
-Circle.prototype.onCollision = function () {
-  return undefined;
-};
-
-Circle.prototype.start = function () {
-  this.vx += this.ax;
-  this.vy += this.ay;
+Circle.prototype.onCollision = function (col) {
+  if (this.onCollisionCallback) {
+    return this.onCollisionCallback(col)
+  }
 };
 
 Circle.prototype.move = function (t) {
@@ -34,8 +34,6 @@ Circle.prototype.move = function (t) {
 Circle.prototype.end = function () {
   this.x = Math.round(this.x);
   this.y = Math.round(this.y);
-  this.ax *= FRICTION;
-  this.ay *= FRICTION;
   this.vx *= FRICTION;
   this.vy *= FRICTION;
   this.vx = Math.trunc(this.vx);
@@ -49,26 +47,21 @@ module.exports = Circle;
 const collision = require('./collision');
 const config = require('./config');
 
-const dist2 = (x, y) => x*x + y*y;
-
-const getSensorCollisionTime = (a, b) => {
+const testSensorCollision = (a, b) => {
   const sensor = a.isSensor ? a : b;
   const other = sensor === a ? b : a;
 
   const x = sensor.x - other.x || 1;
   const y = sensor.y - other.y || 1;
-  const d2 = dist2(x, y);
+  const d2 = x*x + y*y;
   const r2 = sensor.radius * sensor.radius;
 
   if (d2 < r2) {
     return 0.0;
   }
 
-  return getCollisionTime(sensor, other, true);
-};
+  const dt = getCollisionTime(sensor, other, true);
 
-const testSensorCollision = (a, b) => {
-  const dt = getSensorCollisionTime(a, b);
   if (dt < 0.0 || dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
     return;
@@ -84,16 +77,13 @@ const testCollision = (a, b, t) => {
 
   const x = b.x - a.x || 1;
   const y = b.y - a.y || 1;
-  const d2 = dist2(x, y);
+  const d2 = x*x + y*y;
   const r = a.radius + b.radius;
   const r2 = r * r;
 
   if (d2 < r2) {
     // Move objects apart
-    let d = Math.sqrt(d2);
-    if (d === 0) {
-      d = 1;
-    }
+    let d = Math.sqrt(d2) || 1;
     const nx = x / d;
     const ny = y / d;
     const rHalf = Math.ceil((r - d) / 2);
@@ -106,7 +96,7 @@ const testCollision = (a, b, t) => {
     return collision.create(a, b, 0.0); // immidiate collision
   }
 
-  const dt = getCollisionTime(a, b);
+  const dt = getCollisionTime(a, b, false);
 
   if (dt < 0 || t + dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
@@ -185,6 +175,11 @@ const handleCollision = col => {
   const vx = b.vx - a.vx;
   const vy = b.vy - a.vy;
 
+  if (a.vx === 0 && a.vy === 0 &&
+    b.vx === 0 && b.vy === 0) {
+    return;
+  }
+
   // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
   let impact = Math.abs(2.0 * (nx*vx + ny*vy) * (ma * mb) / (ma + mb));
   if (impact < config.IMPACT_MIN) {
@@ -223,8 +218,11 @@ Collision.prototype.update = function(a, b, t, poolIndex) {
 }
 
 Collision.prototype.equal = function(o) {
-  if (this.isSensor || o.isSensor) return this.a === o.a && this.b === o.b;
-  return this.a === o.a && this.b === o.b && this.t === o.t;
+  // if (this.isSensor || o.isSensor) {
+  return this.a === o.a && this.b === o.b;
+  // }
+
+  // return this.a === o.a && this.b === o.b && this.t === o.t;
 };
 
 const objectPool = new ObjectPool(Collision, 1000);
@@ -235,7 +233,7 @@ module.exports = objectPool;
 
 module.exports = {
   FRICTION: 0.85,
-  IMPACT_MIN: 0
+  IMPACT_MIN: 0.0
 };
 
 },{}],5:[function(require,module,exports){
@@ -248,15 +246,12 @@ const config = require('./config');
 const end = a => a.end();
 const equal = a => b => a.equal(b);
 const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
-const move = t => a => a.move(t);
-const remove = a => collision.remove(a);
-const start = a => a.start();
+const remove = collision.remove.bind(collision);
 
 const onCollision = col => {
   col.a.onCollision(col);
   col.b.onCollision(col);
 };
-
 
 function Physics () {
   this.actors = [];
@@ -270,11 +265,13 @@ Physics.prototype.Circle = Circle;
 
 Physics.prototype.createCircle = function(x, y, radius, isSensor, onCollision) {
   const o = new Circle(x, y, radius, isSensor, onCollision);
+
   if (isSensor) {
     this.sensors.push(o);
   } else {
     this.actors.push(o);
   }
+
   return o;
 };
 
@@ -282,16 +279,15 @@ Physics.prototype.getActorCollisions = function(prevCollisions, t) {
   const actors = this.actors;
   let col = null;
   let collisions = [];
+
   for (let i = 0; i < actors.length; i++) {
     for (let j = i + 1; j < actors.length; j++) {
-      if (i !== j) {
-        col = circle2circle.testCollision(actors[i], actors[j], t);
-        if (col) {
-          if (prevCollisions.some(equal(col))) {
-            remove(col);
-          } else {
-            collisions.push(col);
-          }
+      col = circle2circle.testCollision(actors[i], actors[j], t);
+      if (col) {
+        if (prevCollisions.some(equal(col))) {
+          remove(col);
+        } else {
+          collisions.push(col);
         }
       }
     }
@@ -324,7 +320,6 @@ Physics.prototype.getSensorCollisions = function(prevCollisions, t) {
 Physics.prototype.step = function() {
   const actors = this.actors;
   const sensors = this.sensors;
-  this.actors.forEach(start);
 
   let cols1 = null;
   let cols2 = null;
@@ -369,12 +364,19 @@ Physics.prototype.step = function() {
     if (cols.length) {
       const dt = cols[0].t;
       t += dt;
-      actors.forEach(move(dt));
-      cols.forEach(handleCircleCollision(t));
-      cols.forEach(onCollision);
+      for (let i = 0; i < actors.length; i++) {
+        actors[i].move(dt);
+      }
+      for (let i = 0; i < cols.length; i++) {
+        circle2circle.handleCollision(cols[i], t);
+        cols[i].a.onCollision(cols[i]);
+        cols[i].b.onCollision(cols[i]);
+      }
       Array.prototype.push.apply(resolved, cols);
     } else {
-      actors.forEach(move(1.0 - t));
+      for (let i = 0; i < actors.length; i++) {
+        actors[i].move(1.0 - t);
+      }
       t = 1.0;
     }
 

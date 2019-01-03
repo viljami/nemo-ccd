@@ -51,7 +51,7 @@ const testCollision = (a, b, t) => {
     return collision.create(a, b, 0.0); // immidiate collision
   }
 
-  const dt = getCollisionTime(a, b);
+  const dt = getCollisionTime(a, b, false);
 
   if (dt < 0 || t + dt > 1.0) {
     // Collision happens this turn only if 0 <= t <= 1
@@ -129,6 +129,11 @@ const handleCollision = col => {
 
   const vx = b.vx - a.vx;
   const vy = b.vy - a.vy;
+
+  if (a.vx === 0 && a.vy === 0 &&
+    b.vx === 0 && b.vy === 0) {
+    return;
+  }
 
   // http://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm#code
   let impact = Math.abs(2.0 * (nx*vx + ny*vy) * (ma * mb) / (ma + mb));
