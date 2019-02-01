@@ -6,20 +6,14 @@ const config = require('./config');
 
 const end = a => a.end();
 const equal = a => b => a.equal(b);
-const handleCircleCollision = t => col => circle2circle.handleCollision(col, t);
 const remove = collision.remove.bind(collision);
-
-const onCollision = col => {
-  col.a.onCollision(col);
-  col.b.onCollision(col);
-};
 
 function Physics () {
   this.actors = [];
   this.sensors = [];
   this.cols = [];
   this.resolved = [];
-};
+}
 
 Physics.prototype.config = config;
 Physics.prototype.Circle = Circle;
@@ -80,13 +74,12 @@ Physics.prototype.getSensorCollisions = function(prevCollisions, t) {
 
 Physics.prototype.step = function() {
   const actors = this.actors;
-  const sensors = this.sensors;
-
+  const cols = this.cols;
   let cols1 = null;
   let cols2 = null;
-  const cols = this.cols;
   let resolved = this.resolved;
   let t = 0.0;
+
   while (t < 1.0) {
     cols1 = this.getActorCollisions(resolved, t);
     cols2 = this.getSensorCollisions(resolved, t);
@@ -129,7 +122,7 @@ Physics.prototype.step = function() {
         actors[i].move(dt);
       }
       for (let i = 0; i < cols.length; i++) {
-        circle2circle.handleCollision(cols[i], t);
+        circle2circle.handleCollision(cols[i]);
         cols[i].a.onCollision(cols[i]);
         cols[i].b.onCollision(cols[i]);
       }

@@ -1,6 +1,4 @@
 
-'use strict';
-
 const ObjectPool = require('./objectPool');
 
 function Collision (a, b, t) {
